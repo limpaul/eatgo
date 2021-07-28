@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 class RestaurantServiceTest {
@@ -30,6 +31,8 @@ class RestaurantServiceTest {
         List<Restaurant> restaurants = new ArrayList<>();
         restaurants.add(new Restaurant(1004L, "Bob zip", "Seoul"));
         given(restaurantRepository.findAll()).willReturn(restaurants);
+        Restaurant restaurant = new Restaurant(1004L, "Bob zip","Seoul");
+        given(restaurantRepository.findById(1004L)).willReturn(restaurant);
     }
     public void mockMenuItemRepository(){
         Restaurant restaurant = new Restaurant(1004L, "Bob zip", "Seoul");
@@ -48,5 +51,16 @@ class RestaurantServiceTest {
     public void getRestaurants(){
         List<Restaurant> restaurants = restaurantService.getRestaurants();
         assertEquals(1004L, restaurants.get(0).getId());
+    }
+    @Test
+    public void addRestaurant(){
+        Restaurant restaurant = new Restaurant("BeRyong", "Busan");
+        Restaurant saved = new Restaurant(1234L,"BeRyong", "Busan");
+
+        given(restaurantRepository.save(any())).willReturn(saved);
+
+        Restaurant created = restaurantService.addRestaurant(restaurant);
+
+        assertEquals(1234L, created.getId());
     }
 }
