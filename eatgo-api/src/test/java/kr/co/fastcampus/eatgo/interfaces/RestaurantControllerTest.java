@@ -1,5 +1,7 @@
 package kr.co.fastcampus.eatgo.interfaces;
 
+import kr.co.fastcampus.eatgo.domain.MenuItemRepository;
+import kr.co.fastcampus.eatgo.domain.MenuItemRepositoryImpl;
 import kr.co.fastcampus.eatgo.domain.RestaurantRepository;
 import kr.co.fastcampus.eatgo.domain.RestaurantRepositoryImpl;
 import org.hamcrest.CoreMatchers;
@@ -23,8 +25,10 @@ class RestaurantControllerTest {
 
     // 같은 방식으로 작동하는 객체를 관리할 수 있다.
     @SpyBean(RestaurantRepositoryImpl.class) // controller에 원하는 bean을 등록해줄 수 있다.
-    private RestaurantRepository repository;
+    private RestaurantRepository restaurantRepository;
 
+    @SpyBean(MenuItemRepositoryImpl.class)
+    private MenuItemRepository menuItemRepository;
     @Test
     public void list() throws Exception{
         mvc.perform(MockMvcRequestBuilders.get("/restaurants"))
@@ -45,17 +49,18 @@ class RestaurantControllerTest {
     public void detail() throws Exception{
         mvc.perform(MockMvcRequestBuilders.get("/restaurant/1004"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$..id").value(1004))
-                .andExpect(MockMvcResultMatchers.jsonPath("$..name").value("Bob zip"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$..address").value("Seoul"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1004))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("Bob zip"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.address").value("Seoul"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.menuItems[0:].name").value("Kimchi"))
                 .andDo(MockMvcResultHandlers.print());
-
         mvc.perform(MockMvcRequestBuilders.get("/restaurant/2020"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$..id").value(2020))
-                .andExpect(MockMvcResultMatchers.jsonPath("$..name").value("Cyber Food"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$..address").value("Seoul"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(2020))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("Cyber Food"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.address").value("Seoul"))
                 .andDo(MockMvcResultHandlers.print());
+
     }
 
 }
