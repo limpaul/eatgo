@@ -19,7 +19,7 @@ public class Restaurant {
 
 
     public String getName() {
-        return "Bob zip";
+        return name;
     }
 
     public String getInformation() {
