@@ -12,41 +12,45 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class) //단위테스트에 공통적으로 사용할 확장 테스트,.
 class RestaurantServiceTest {
 
-    /*@SpyBean(RestaurantService.class)
-    private RestaurantService restaurantService;
-    @SpyBean(RestaurantRepositoryImpl.class)
-    private RestaurantRepository restaurantRepository;
-    @SpyBean(MenuItemRepositoryImpl.class)
-    private MenuItemRepository menuItemRepository;
-*/
-    @MockBean
     private RestaurantService restaurantService;
     @MockBean
     private RestaurantRepository restaurantRepository;
     @MockBean
     private MenuItemRepository menuItemRepository;
+    @MockBean
+    private ReviewRepository reviewRepository;
 
     @BeforeEach
     public void init(){
         mockRestaurantRepository();
-    }
-    @Test
-    public void getRestaurants(){
-        List<Restaurant> restaurants = restaurantRepository.findAll();
-        Assertions.assertEquals(1004L, restaurants.get(0).getId());
+        mockReviewRepository();
+        restaurantService = new RestaurantService(restaurantRepository, menuItemRepository, reviewRepository);
     }
     @Test
     public void getRestaurant(){
         Restaurant restaurant = restaurantService.getRestaurant(1004L);
-        Assertions.assertEquals(1004L, restaurant.getId());
-        MenuItem menuItem = restaurantService.getMenuItems().get(0);
-        Assertions.assertEquals("Kimchi", menuItem.getName());
+
+        verify(menuItemRepository).findAllByRestaurantId(eq(1004L));
+        verify(reviewRepository).findAllByRestaurantId(eq(1004L));
+
+        assertEquals(1004L, restaurant.getId());
+        assertEquals("Kimchi", restaurant.getMenuItems().get(0).getName());
+        assertEquals("BeRyong", restaurant.getReviews().get(0).getName());
+        assertEquals(1, restaurant.getReviews().get(0).getScore());
+        assertEquals("bad", restaurant.getReviews().get(0).getDescription());
+
+    }
+    @Test
+    public void getRestaurants(){
+        List<Restaurant> restaurants = restaurantService.getRestaurants();
+        Assertions.assertEquals(1004L, restaurants.get(0).getId());
     }
     @Test
     public void addRestaurant(){
@@ -59,7 +63,7 @@ class RestaurantServiceTest {
         Restaurant restaurant = new Restaurant(1004L, "Bob zip", "Busan");
         Mockito.when(restaurantRepository.findById(1004L)).thenReturn(Optional.of(restaurant));
         Restaurant updated = restaurantService.updateRestaurant(1004L, "Sool Zip", "Seoul");
-        Assertions.assertEquals(updated.getName(), "Sool zip");
+        Assertions.assertEquals(updated.getName(), "Sool Zip");
         Assertions.assertEquals(updated.getAddress(), "Seoul");
     }
     private void mockRestaurantRepository(){
@@ -69,13 +73,18 @@ class RestaurantServiceTest {
         restaurants.add(restaurant);
         Mockito.when(restaurantRepository.findAll()).thenReturn(restaurants);
         Mockito.when(restaurantRepository.findById(1004L)).thenReturn(Optional.of(restaurant));
-
-        Mockito.when(restaurantService.getRestaurant(1004L)).thenReturn(restaurant);
-        Mockito.when(restaurantService.getRestaurants()).thenReturn(restaurants);
-        Mockito.when(restaurantService.getMenuItems()).thenReturn(Arrays.asList(new MenuItem("Kimchi")));
-
-        Mockito.when(restaurantService.addRestaurant(Mockito.any())).thenReturn(restaurant);
-        Mockito.when( restaurantService.updateRestaurant(Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(new Restaurant(1004L, "Sool zip", "Seoul"));
+        Mockito.when(restaurantRepository.save(Mockito.any())).thenReturn(restaurant);
+        Mockito.when(menuItemRepository.findAllByRestaurantId(Mockito.any())).thenReturn(Arrays.asList(new MenuItem("Kimchi")));
+        Mockito.when(menuItemRepository.findAll()).thenReturn(Arrays.asList(new MenuItem("Kimchi")));
+    }
+    private void mockReviewRepository(){
+        List<Review> reviews = new ArrayList<>();
+        reviews.add(Review.builder()
+                .name("BeRyong")
+                .score(1)
+                .description("bad")
+                .build());
+        when(reviewRepository.findAllByRestaurantId(any())).thenReturn(reviews);
+        when(reviewRepository.findAll()).thenReturn(reviews);
     }
 }

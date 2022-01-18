@@ -1,9 +1,6 @@
 package kr.co.fastcampus.eatgo.application;
 
-import kr.co.fastcampus.eatgo.domain.MenuItem;
-import kr.co.fastcampus.eatgo.domain.MenuItemRepository;
-import kr.co.fastcampus.eatgo.domain.Restaurant;
-import kr.co.fastcampus.eatgo.domain.RestaurantRepository;
+import kr.co.fastcampus.eatgo.domain.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.function.Supplier;
 
 @Service
 @AllArgsConstructor
@@ -22,6 +20,9 @@ public class RestaurantService {
 
     @Autowired
     private MenuItemRepository menuItemRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
 
 
     public List<Restaurant> getRestaurants() {
@@ -35,8 +36,9 @@ public class RestaurantService {
     public Restaurant getRestaurant(Long id){
         Restaurant restaurant = restaurantRepository.findById(id).orElse(null);
         List<MenuItem> menuItems = menuItemRepository.findAllByRestaurantId(id);
-
+        List<Review> review = reviewRepository.findAllByRestaurantId(id);
         restaurant.setMenuItems(menuItems);
+        restaurant.setReviews(review);
         return restaurant;
     }
 
@@ -54,5 +56,9 @@ public class RestaurantService {
         Restaurant restaurant = restaurantRepository.findById(id).orElse(null);
         restaurant.updateInformation(name, address);
         return restaurant;
+    }
+
+    public List<Review> getReviews() {
+        return reviewRepository.findAll();
     }
 }

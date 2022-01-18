@@ -28,7 +28,7 @@ class ReviewServiceTest {
                 .score(3)
                 .description("mat-it-da")
                 .build();
-        reviewService.addReview(review);
+        reviewService.addReview(Mockito.any(), review);
 
         Mockito.verify(reviewRepository, Mockito.times(1)).save(Mockito.any());
     }

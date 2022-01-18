@@ -43,7 +43,13 @@ class RestaurantControllerTest {
     @Test
     public void detail() throws Exception{
         Restaurant restaurant = new Restaurant(1004L, "Bob zip", "Seoul");
-        restaurant.setMenuItems(Arrays.asList(new MenuItem("Kimchi")));
+
+        MenuItem menuItem = MenuItem.builder().id(1004L).restaurantId(1L).name("Kimchi").build();
+        restaurant.setMenuItems(Arrays.asList(menuItem));
+
+        Review review = Review.builder().name("Bob zip").id(1004L).score(3).description("Great!").build();
+        restaurant.setReviews(Arrays.asList(review));
+
         Mockito.when(restaurantService.getRestaurant(1004L)).thenReturn(restaurant);
 
         mvc.perform(MockMvcRequestBuilders.get("/restaurant/1004"))
@@ -52,6 +58,7 @@ class RestaurantControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("Bob zip"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.address").value("Seoul"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.menuItems[0:].name").value("Kimchi"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.reviews[0:].description").value("Great!"))
                 .andDo(MockMvcResultHandlers.print());
     }
     @Test

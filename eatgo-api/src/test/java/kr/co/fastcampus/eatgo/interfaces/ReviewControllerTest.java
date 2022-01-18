@@ -33,7 +33,7 @@ class ReviewControllerTest {
     public void create() throws Exception{
         Review review = Review.builder()
                 .id(1234L).name("Joker").score(3).description("mat-it-da").build();
-        Mockito.when(reviewService.addReview(Mockito.any())).thenReturn(review);
+        Mockito.when(reviewService.addReview(Mockito.any(), Mockito.any())).thenReturn(review);
         mvc.perform(MockMvcRequestBuilders.post("/restaurants/1/reviews")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Joker\",\"score\":3, \"description\":\"mat-it-da\"}")
@@ -43,6 +43,6 @@ class ReviewControllerTest {
 
 
 
-        Mockito.verify(reviewService).addReview(Mockito.any());
+        Mockito.verify(reviewService).addReview(Mockito.any(), Mockito.any());
     }
 }
