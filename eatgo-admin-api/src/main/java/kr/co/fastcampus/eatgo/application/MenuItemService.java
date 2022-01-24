@@ -16,7 +16,6 @@ public class MenuItemService {
     @Autowired
     private MenuItemRepository menuItemRepository;
 
-
     public void bulkUpdate(Long restaurantId, List<MenuItem> menuItems) {
         menuItems.forEach(
                 it ->{
@@ -26,9 +25,8 @@ public class MenuItemService {
     }
 
     private void update(Long restaurantId, MenuItem it) {
+
         if(it.isDestroy()){
-            //삭제
-            // TODO: delete
             menuItemRepository.deleteById(it.getId());
             return;
         }

@@ -10,12 +10,14 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import java.util.*;
+import static org.mockito.Mockito.*;
 
 @WebMvcTest(RestaurantController.class)
 class RestaurantControllerTest {
@@ -29,13 +31,13 @@ class RestaurantControllerTest {
     public void list() throws Exception {
         List<Restaurant> restaurants = new ArrayList<>();
         restaurants.add(new Restaurant(1004L, "Bob zip", "Seoul"));
-        Mockito.when(restaurantService.getRestaurants()).thenReturn(restaurants);
-        mvc.perform(MockMvcRequestBuilders.get("/restaurants"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value("Bob zip"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].information").value("Bob zip in Seoul"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(1004))
-                .andDo(MockMvcResultHandlers.print());
+        Mockito.when(restaurantService.getRestaurants("Seoul", 1L)).thenReturn(restaurants);
+        mvc.perform(get("/restaurants?region=Seoul&category=1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Bob zip"))
+                .andExpect(jsonPath("$[0].information").value("Bob zip in Seoul"))
+                .andExpect(jsonPath("$[0].id").value(1004))
+                .andDo(print());
     }
     @Test
     public void detail() throws Exception{
@@ -49,16 +51,35 @@ class RestaurantControllerTest {
 
         Mockito.when(restaurantService.getRestaurant(1004L)).thenReturn(restaurant);
 
-        mvc.perform(MockMvcRequestBuilders.get("/restaurant/1004"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1004))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("Bob zip"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.address").value("Seoul"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.menuItems[0:].name").value("Kimchi"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.reviews[0:].description").value("Great!"))
-                .andDo(MockMvcResultHandlers.print());
+        mvc.perform(get("/restaurant/1004"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1004))
+                .andExpect(jsonPath("$.name").value("Bob zip"))
+                .andExpect(jsonPath("$.address").value("Seoul"))
+                .andExpect(jsonPath("$.menuItems[0:].name").value("Kimchi"))
+                .andExpect(jsonPath("$.reviews[0:].description").value("Great!"))
+                .andDo(print());
     }
+    @Test
+    public void regionTest() throws Exception{
+        List<Restaurant> restaurants = new ArrayList<>();
+        Restaurant restaurant = Restaurant.builder()
+                .id(1004L)
+                .categoryId(1L)
+                .name("Joker House")
+                .address("Seoul")
+                .build();
+        restaurants.add(restaurant);
 
+        when(restaurantService.getRestaurants("Seoul", 1L))
+                .thenReturn(restaurants);
+        mvc.perform(get("/restaurants?region=Seoul&category=1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("\"id\":1004")))
+                .andExpect(content().string(containsString("\"address\":\"Seoul\"")))
+                .andDo(print());
+    }
+    // "id":1004 "address":"Seoul"
     @Test
     public void updateRestaurant(){
 

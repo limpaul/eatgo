@@ -25,8 +25,11 @@ public class RestaurantService {
     private ReviewRepository reviewRepository;
 
 
-    public List<Restaurant> getRestaurants() {
-        List<Restaurant> restaurants = restaurantRepository.findAll();
+    public List<Restaurant> getRestaurants(String region, Long categoryId) {
+        // TODO: categoryId 사용.
+
+        List<Restaurant> restaurants =
+                restaurantRepository.findAllByAddressContainingAndCategoryId(region, categoryId);
         /*
             menuItems를 전부 불러와서 restaurants 애들이랑 menuItems를 초기화 시켜준다.
         */

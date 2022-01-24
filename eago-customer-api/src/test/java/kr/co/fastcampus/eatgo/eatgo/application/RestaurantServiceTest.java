@@ -46,7 +46,9 @@ class RestaurantServiceTest {
     }
     @Test
     public void getRestaurants(){
-        List<Restaurant> restaurants = restaurantService.getRestaurants();
+        String region="Seoul";
+        Long categoryId = 1L;
+        List<Restaurant> restaurants = restaurantService.getRestaurants(region, categoryId);
         Assertions.assertEquals(1004L, restaurants.get(0).getId());
     }
     @Test
@@ -68,11 +70,14 @@ class RestaurantServiceTest {
         Restaurant restaurant = new Restaurant(1004L, "BeRyong", "Busan");
         restaurant.setMenuItems(Arrays.asList(new MenuItem("Kimchi")));
         restaurants.add(restaurant);
+
         Mockito.when(restaurantRepository.findAll()).thenReturn(restaurants);
         Mockito.when(restaurantRepository.findById(1004L)).thenReturn(Optional.of(restaurant));
         Mockito.when(restaurantRepository.save(Mockito.any())).thenReturn(restaurant);
         Mockito.when(menuItemRepository.findAllByRestaurantId(Mockito.any())).thenReturn(Arrays.asList(new MenuItem("Kimchi")));
         Mockito.when(menuItemRepository.findAll()).thenReturn(Arrays.asList(new MenuItem("Kimchi")));
+        when(restaurantRepository.findAllByAddressContainingAndCategoryId("Seoul", 1L))
+                .thenReturn(restaurants);
     }
     private void mockReviewRepository(){
         List<Review> reviews = new ArrayList<>();

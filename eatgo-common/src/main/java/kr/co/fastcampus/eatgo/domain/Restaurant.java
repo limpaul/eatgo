@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotEmpty;
 import java.util.*;
 
 @Builder
@@ -18,7 +20,16 @@ public class Restaurant {
     @Id
     @GeneratedValue
     private Long id;
+
+    @NotEmpty
+    @Getter
+    @Setter
+    private Long categoryId;
+
+    @NotEmpty
     private String name;
+
+    @NotEmpty
     private String address;
 
     @Transient // 임시로 처리되는거다 db로 저장하거나 처리하는것이 아니다. 단지 아이템들 받아서 리턴 해줄 애들이다.
@@ -64,6 +75,7 @@ public class Restaurant {
     public List<MenuItem> getMenuItems(){
         return menuItems;
     }
+
     public void addMenuItem(MenuItem item) {
         if(menuItems == null){
             menuItems = new ArrayList<>();

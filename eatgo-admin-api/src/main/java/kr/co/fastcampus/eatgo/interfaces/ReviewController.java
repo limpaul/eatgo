@@ -19,8 +19,7 @@ public class ReviewController {
 
     @GetMapping("/reviews")
     public List<Review> reviews(){
-        List<Review> reviews = new ArrayList<>();
-                //reviewService.getReviews();
+        List<Review> reviews = reviewService.getReviews();
         return reviews;
     }
 

@@ -15,7 +15,10 @@ public class RestaurantService {
 
     @Autowired
     private RestaurantRepository restaurantRepository;
-
+    @Autowired
+    private MenuItemRepository menuItemRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
 
 
     public List<Restaurant> getRestaurants() {
@@ -27,13 +30,15 @@ public class RestaurantService {
     }
 
     public Restaurant getRestaurant(Long id){
-        Restaurant restaurant = restaurantRepository.findById(id).orElse(null);
-        return restaurant;
+       Restaurant restaurant = restaurantRepository.findById(id).orElse(null);
+       restaurant.setMenuItems(menuItemRepository.findAllByRestaurantId(id));
+       restaurant.setReviews(reviewRepository.findAllByRestaurantId(id));
+       return restaurant;
     }
 
 
     public Restaurant addRestaurant(Restaurant restaurant) {
-        Restaurant saved =  restaurantRepository.save(restaurant);
+        Restaurant saved = restaurantRepository.save(restaurant);
         return saved;
     }
 

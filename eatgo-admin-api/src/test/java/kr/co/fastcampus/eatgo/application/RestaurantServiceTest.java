@@ -19,11 +19,14 @@ class RestaurantServiceTest {
     private RestaurantService restaurantService;
     @MockBean
     private RestaurantRepository restaurantRepository;
-
+    @MockBean
+    private MenuItemRepository menuItemRepository;
+    @MockBean
+    private ReviewRepository reviewRepository;
     @BeforeEach
     public void init(){
         mockRestaurantRepository();
-        restaurantService = new RestaurantService(restaurantRepository);
+        restaurantService = new RestaurantService(restaurantRepository, menuItemRepository, reviewRepository);
     }
     @Test
     public void getRestaurant(){
